@@ -17,8 +17,21 @@
 
 #import "AGClientDeviceInformationImpl.h"
 
+@implementation NSData (RemoteNotification)
+
+- (NSString *)remoteNotificationDeviceToken {
+    NSMutableString *deviceToken = [NSMutableString stringWithCapacity:([self length] * 2)];
+    Byte *bytes = (Byte*)[self bytes];
+    for (NSUInteger i = 0; i < [self length]; i++) {
+        [deviceToken appendFormat:@"%02X", bytes[i]];
+    }
+    return [deviceToken lowercaseString];
+}
+
+@end
+
 @interface AGClientDeviceInformationImpl()
-    - (NSString *) convertToNSString:(NSData *)deviceToken;
+- (NSString *) convertToNSString:(NSData *)deviceToken;
 @end
 
 @implementation AGClientDeviceInformationImpl
@@ -59,12 +72,7 @@
 
 // little helper to transform the NSData-based token into a (useful) String:
 - (NSString *) convertToNSString:(NSData *)deviceToken {
-    NSString *tokenStr = [deviceToken description];
-    NSString *pushToken = [[[tokenStr
-                             stringByReplacingOccurrencesOfString:@"<" withString:@""]
-                            stringByReplacingOccurrencesOfString:@">" withString:@""]
-                           stringByReplacingOccurrencesOfString:@" " withString:@""];
-    return pushToken;
+    return [deviceToken remoteNotificationDeviceToken];
 }
 
 @end
